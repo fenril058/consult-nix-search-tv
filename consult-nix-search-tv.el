@@ -4,7 +4,7 @@
 
 ;; Author: ril <fenril.nh@gmail.com>
 ;; Version: 0.1
-;; Package-Requires: ((emacs "30.1") (consult "3.0"))
+;; Package-Requires: ((emacs "30.1") (consult "3.0") (embark "1.0"))
 ;; Keywords: convenience
 ;; URL: https://github.com/fenril058/consult-nix-search-tv
 ;; SPDX-License-Identifier: GPL-3.0-or-later
@@ -30,6 +30,7 @@
 
 (require 'consult)
 (require 'ansi-color)
+(require 'embark)
 
 (defgroup consult-nix-search-tv nil
   "Consult integration for nix-search-tv."
@@ -88,6 +89,41 @@
    :require-match t
    :sort nil
    :state (consult-nix-search-tv--preview-state)))
+
+;;; embark integration
+(defun embark-nix-search-tv-browse-homepage (candidate)
+  "Browse homepage for CANDIDATE."
+  (interactive "sPackage: ")
+  (browse-url
+   (string-trim
+    (consult-nix-search-tv--command
+     "homepage"
+     candidate))))
+
+(defun embark-nix-search-tv-browse-source (candidate)
+  "Browse source declaration for CANDIDATE."
+  (interactive "sPackage: ")
+  (browse-url
+   (string-trim
+    (consult-nix-search-tv--command
+     "source"
+     candidate))))
+
+(defun embark-nix-search-tv-copy (candidate)
+  "Copy CANDIDATE to kill-ring."
+  (interactive "sPackage: ")
+  (kill-new candidate)
+  (message "Copied: %s" candidate))
+
+(defvar-keymap consult-nix-search-tv-embark-map
+  :doc "Embark map for nix-search-tv candidates."
+  "h" #'embark-nix-search-tv-browse-homepage
+  "s" #'embark-nix-search-tv-browse-source
+  "w" #'embark-nix-search-tv-copy)
+
+(add-to-list
+ 'embark-keymap-alist
+ '(nix-package . consult-nix-search-tv-embark-map))
 
 (provide 'consult-nix-search-tv)
 ;;; consult-nix-search-tv.el ends here
