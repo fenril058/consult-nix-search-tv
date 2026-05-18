@@ -44,12 +44,11 @@
 
 (defun consult-nix-search-tv--command (command candidate)
   "Run nix-search-tv COMMAND against CANDIDATE."
-  (ansi-color-filter-apply
-   (shell-command-to-string
-    (format
-     "nix-search-tv %s %s"
-     command
-     (shell-quote-argument candidate)))))
+  (shell-command-to-string
+   (format
+    "nix-search-tv %s %s"
+    command
+    (shell-quote-argument candidate))))
 
 (defun consult-nix-search-tv--candidates ()
   "Return nix-search-tv candidates."
@@ -63,7 +62,6 @@
   (consult-nix-search-tv--command "preview" candidate))
 
 (defun consult-nix-search-tv--preview-state ()
-  "Create preview state function."
   (lambda (action cand)
     (when (and cand (eq action 'preview))
       (let ((buffer
@@ -72,10 +70,20 @@
         (with-current-buffer buffer
           (let ((inhibit-read-only t))
             (erase-buffer)
+
             (insert
-             (consult-nix-search-tv--preview cand))
+             (shell-command-to-string
+              (format
+               "nix-search-tv preview %s"
+               (shell-quote-argument cand))))
+
+            (ansi-color-apply-on-region
+             (point-min)
+             (point-max))
+
             (goto-char (point-min))
             (view-mode 1)))
+
         (display-buffer buffer)))))
 
 ;;;###autoload
